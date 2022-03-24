@@ -1,11 +1,12 @@
-
-#ifndef __FNET_BASE_
-#define __FNET_BASE_
+#ifndef __FNET_BASE_TOOL_
+#define __FNET_BASE_TOOL_
 
 #include <string>
 #include <vector>
 #include <cstddef>
 #include <string.h>
+
+//#define DEBUG_LOG(args) 
 
 namespace base {
 
@@ -15,6 +16,8 @@ namespace base {
   {
     memset(p,0,n);
   }
+
+
 } //namespace base
 
 
