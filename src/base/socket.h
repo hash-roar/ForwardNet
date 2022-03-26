@@ -1,6 +1,7 @@
 #ifndef __FNET_BASE_SOCK_
 #define __FNET_BASE_SOCK_
 
+#include "inet_addr.h"
 #include <cstddef>
 #include <cstdint>
 #include <endian.h>
@@ -10,9 +11,9 @@ namespace base {
 
 // socket_encapsulation
 
-class InetAddr;
+class InetAddress;
 
-class Socket{
+class Socket {
   public:
   explicit Socket(int sockfd)
       : sockfd_(sockfd)
@@ -24,11 +25,11 @@ class Socket{
 
   int fd() const { return sockfd_; }
   // return true if success.
-  bool getTcpInfo(struct tcp_info*) const;
-  bool getTcpInfoString(char* buf, int len) const;
+  // bool getTcpInfo(struct tcp_info*) const;
+  // bool getTcpInfoString(char* buf, int len) const;
 
   /// abort if address in use
-  void bindAddress(const InetAddr& localaddr);
+  void bindAddress(const InetAddress& localaddr);
   /// abort if address in use
   void listen();
 
@@ -36,7 +37,7 @@ class Socket{
   /// a descriptor for the accepted socket, which has been
   /// set to non-blocking and close-on-exec. *peeraddr is assigned.
   /// On error, -1 is returned, and *peeraddr is untouched.
-  int accept(InetAddr* peeraddr);
+  int accept(InetAddress* peeraddr);
 
   void shutdownWrite();
 
@@ -81,17 +82,6 @@ inline To down_cast(From* f)
   return static_cast<To>(f);
 }
 
-// endian cast
-//
-inline uint16_t hostToNetwork16(uint16_t host16)
-{
-  return htobe16(host16);
-}
-inline uint32_t hostToNetwork32(uint32_t host32)
-{
-  return htobe32(host32);
-}
-
 // ip cast
 
 void fromIpPort(const char* ip, uint16_t port, struct sockaddr_in* addr);
@@ -107,11 +97,11 @@ const struct sockaddr* cast(const struct sockaddr_in6* addr);
 // return static_cast<const struct sockaddr*>(implicit_cast<const void*>(addr));
 //}
 
-const struct sockaddr* sockaddr_cast(const struct sockaddr_in* addr);
-const struct sockaddr* sockaddr_cast(const struct sockaddr_in6* addr);
-struct sockaddr* sockaddr_cast(struct sockaddr_in6* addr);
-const struct sockaddr_in* sockaddr_in_cast(const struct sockaddr* addr);
-const struct sockaddr_in6* sockaddr_in6_cast(const struct sockaddr* addr);
+// const struct sockaddr* sockaddr_cast(const struct sockaddr_in* addr);
+// const struct sockaddr* sockaddr_cast(const struct sockaddr_in6* addr);
+// struct sockaddr* sockaddr_cast(struct sockaddr_in6* addr);
+// const struct sockaddr_in* sockaddr_in_cast(const struct sockaddr* addr);
+// const struct sockaddr_in6* sockaddr_in6_cast(const struct sockaddr* addr);
 
 struct sockaddr_in6 getLocalAddr(int sockfd);
 struct sockaddr_in6 getPeerAddr(int sockfd);

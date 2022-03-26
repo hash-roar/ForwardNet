@@ -1,88 +1,105 @@
-
+#include <netinet/tcp.h>
 #include "socket.h"
+#include "base.h"
+#include "inet_addr.h"
+#include "tool.h"
 #include <arpa/inet.h>
 #include <assert.h>
 #include <cstdio>
 #include <cstring>
-#include <unistd.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <unistd.h>
 namespace base {
 
-// socket_encapsulation
+class InetAddress;
 
+// socket_encapsulation
 Socket::~Socket()
 {
-  if (::close(sockfd_)<0) {
+  if (::close(sockfd_) < 0) {
     printf("close socket error");
   }
 }
 
-const struct sockaddr* sockaddr_cast(const struct sockaddr_in6* addr)
+void Socket::bindAddress(const InetAddress& localaddr)
 {
-  return static_cast<const struct sockaddr*>(implicit_cast<const void*>(addr));
-}
-
-struct sockaddr* sockaddr_cast(struct sockaddr_in6* addr)
-{
-  return static_cast<struct sockaddr*>(implicit_cast<void*>(addr));
-}
-
-const struct sockaddr* sockaddr_cast(const struct sockaddr_in* addr)
-{
-  return static_cast<const struct sockaddr*>(implicit_cast<const void*>(addr));
-}
-
-const struct sockaddr_in* sockaddr_in_cast(const struct sockaddr* addr)
-{
-  return static_cast<const struct sockaddr_in*>(implicit_cast<const void*>(addr));
-}
-
-const struct sockaddr_in6* sockaddr_in6_cast(const struct sockaddr* addr)
-{
-  return static_cast<const struct sockaddr_in6*>(implicit_cast<const void*>(addr));
-}
-
-void toIpPort(char* buf, size_t size,
-    const struct sockaddr* addr)
-{
-  if (addr->sa_family == AF_INET6) {
-    buf[0] = '[';
-    toIp(buf + 1, size - 1, addr);
-    size_t end = ::strlen(buf);
-    const struct sockaddr_in6* addr6 = sockaddr_in6_cast(addr);
-    uint16_t port = networkToHost16(addr6->sin6_port);
-    snprintf(buf + end, size - end, ":%u", port);
+  auto ret = ::bind(sockfd_, localaddr.getSockAddr(),
+      static_cast<socklen_t>(sizeof(struct sockaddr_in)));
+  if (ret < 0) {
+    DEBUG_LOG
   }
-  void toIp(char* buf, size_t size, const struct sockaddr* addr)
+}
+
+void Socket::listen()
+{
+  auto ret = ::listen(sockfd_, SOMAXCONN);
+  if (ret < 0) {
+    DEBUG_LOG
+  }
+}
+
+int Socket::accept(InetAddress *peeraddr)
+{
+  struct sockaddr_in addr;
+  memZero(&addr, sizeof addr);
+  socklen_t addr_len = 
+    static_cast<socklen_t>(sizeof(*peeraddr->getSockAddr()));
+  int connfd = ::accept(sockfd_,reinterpret_cast<struct sockaddr*>(&addr),&addr_len);
+  if (connfd >= 0)
   {
-    if (addr->sa_family == AF_INET) {
-      assert(size >= INET_ADDRSTRLEN);
-      const struct sockaddr_in* addr4 = sockaddr_in_cast(addr);
-      ::inet_ntop(AF_INET, &addr4->sin_addr, buf, static_cast<socklen_t>(size));
-    } else if (addr->sa_family == AF_INET6) {
-      assert(size >= INET_ADDRSTRLEN);
-      const struct sockaddr_in6* addr4 = sockaddr_in6_cast(addr);
-      ::inet_ntop(AF_INET, &addr4->sin6_addr, buf, static_cast<socklen_t>(size));
-    }
+    peeraddr->setSockAddr(addr);
   }
+  return connfd;
+}
 
-  void fromIpPort(const char* ip, uint16_t port, struct sockaddr_in* addr)
-  {
-    addr->sin_family = AF_INET;
-    addr->sin_port = hostToNetwork16(port);
-    if (::inet_pton(AF_INET, ip, &addr->sin_addr) <= 0) {
-      printf("something wrong in from ip port");
-    }
+void Socket::shutdownWrite()
+{
+  if (::shutdown(sockfd_,SHUT_WR)<0) {
+    DEBUG_LOG
   }
+}
 
-  void fromIpPort(const char* ip, uint16_t port, struct sockaddr_in6* addr)
+void Socket::setTcpNoDelay(bool on)
+{
+  int optval = on ? 1 : 0;
+  ::setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY,
+               &optval, static_cast<socklen_t>(sizeof optval));
+}
+
+void Socket::setReuseAddr(bool on)
+{
+   int optval = on ? 1 : 0;
+  ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR,
+               &optval, static_cast<socklen_t>(sizeof optval));
+}
+
+void Socket::setReusePort(bool on)
+{
+#ifdef SO_REUSEPORT
+  int optval = on ? 1 : 0;
+  int ret = ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEPORT,
+                         &optval, static_cast<socklen_t>(sizeof optval));
+  if (ret < 0 && on)
   {
-    addr->sin6_family = AF_INET;
-    addr->sin6_port = hostToNetwork16(port);
-    if (::inet_pton(AF_INET6, ip, &addr->sin6_addr) <= 0) {
-      printf("something wrong in from ip port");
-    }
+    DEBUG_LOG
   }
+#else
+  if (on)
+  {
+    DEBUG_LOG
+  }
+#endif
+}
+
+void Socket::setKeepAlive(bool on)
+{
+  int optval = on ? 1 : 0;
+  ::setsockopt(sockfd_, SOL_SOCKET, SO_KEEPALIVE,
+               &optval, static_cast<socklen_t>(sizeof optval));
+  // FIXME CHECK
+}
+
+
 
 } // namespace base
