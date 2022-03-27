@@ -33,5 +33,8 @@ ConfigError AppConfig::parseConfFile()
     return ConfigError::CONF_SYNTAX_ERROR;
   }
 
+  for (const auto& item:jsondocu["net"].GetArray()) {
+
+  }
   return ConfigError::NONE;
 }
