@@ -14,7 +14,7 @@ class InetAddress {
   /// Constructs an endpoint with given port number.
   /// Mostly used in TcpServer listening.
   explicit InetAddress(uint16_t port = 0, bool loopbackOnly = false, bool ipv6 = false);
-
+  InetAddress()=default;
   /// Constructs an endpoint with given ip and port.
   /// @c ip should be "1.2.3.4"
   InetAddress(std::string_view ip, uint16_t port, bool ipv6 = false);
@@ -26,10 +26,10 @@ class InetAddress {
   {
   }
 
-  explicit InetAddress(const struct sockaddr_in6& addr)
-      : addr6_(addr)
-  {
-  }
+  //explicit InetAddress(const struct sockaddr_in6& addr)
+      //: addr6_(addr)
+  //{
+  //}
 
   sa_family_t family() const { return addr_.sin_family; }
   //std::string toIp() const;

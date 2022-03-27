@@ -3,21 +3,43 @@
 
 #include <string>
 #include <vector>
+
+#include "../base/inet_addr.h"
 namespace appconfig {
+
+enum class ConfigError {
+  NONE,
+  CONF_FILE_NOT_EXIST,
+  CONF_SYNTAX_ERROR,
+  CONF_PARSE_ERROR,
+  CONF_READ_ERROR,
+};
+
+class InetAddress;
+
 struct NetConfig {
-  std::string src_ip;
-  std::string src_port;
-  std::string des_ip;
-  std::string des_port;
+  base::InetAddress sec;
+  base::InetAddress des;
 };
 
-struct BaseConfig{
+struct BaseConfig {
   std::string conf_path;
-  uint is_backgound;
+  uint is_backgound=0;
+  std::string log_path;
 };
 
-struct AppConfig {
-  std::vector<NetConfig>  net_configs;
+class AppConfig {
+  public:
+  AppConfig() { }
+  ~AppConfig() { }
+
+  ConfigError parseConfFile();
+
+
+
+  private:
+  std::vector<NetConfig> net_configs;
+  BaseConfig base_config;
 };
 
 } // namespace appconfig

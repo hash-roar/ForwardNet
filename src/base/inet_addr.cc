@@ -36,16 +36,8 @@ InetAddress::InetAddress(uint16_t portArg, bool loopbackOnly, bool ipv6)
 
 InetAddress::InetAddress(std::string_view ip, uint16_t portArg, bool ipv6)
 {
-  if (ipv6 || strchr(ip.data(), ':'))
-  {
-    memZero(&addr6_, sizeof addr6_);
-    fromIpPort(ip.data(), portArg, &addr6_);
-  }
-  else
-  {
     memZero(&addr_, sizeof addr_);
     fromIpPort(ip.data(), portArg, &addr_);
-  }
 }
 
 uint32_t InetAddress::ipv4NetEndian() const

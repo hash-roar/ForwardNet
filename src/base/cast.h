@@ -61,8 +61,8 @@ inline To down_cast(From* f)
 void fromIpPort(const char* ip, uint16_t port, struct sockaddr_in* addr);
 //void fromIpPort(const char* ip, uint16_t port, struct sockaddr_in6* addr);
 
-void toIpPort(char* buf, std::size_t size, const struct sockaddr* addr);
-void toIp(char* buf, std::size_t size, const struct sockaddr* addr);
+//void toIpPort(char* buf, std::size_t size, const struct sockaddr* addr);
+//void toIp(char* buf, std::size_t size, const struct sockaddr* addr);
 
 
 }

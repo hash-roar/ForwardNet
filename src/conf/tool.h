@@ -14,7 +14,7 @@ namespace base {
 
 
   enum class BaseError{
-    None,
+    NONE,
     ReadFileToStringError,
     ReadFileTooLarge
   };
