@@ -18,7 +18,7 @@ enum class ConfigError {
 class InetAddress;
 
 struct NetConfig {
-  base::InetAddress sec;
+  base::InetAddress src;
   base::InetAddress des;
 };
 

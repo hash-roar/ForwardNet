@@ -2,19 +2,15 @@
   "net": [
     {
       "src_ip": "127.0.0.1",
-      "src_port": "80"
-    },
-    {
+      "src_port": 80,
       "des_ip": "127.0.0.3",
-      "des_port": "60001"
+      "des_port": 60001
     },
     {
       "src_ip": "127.0.0.2",
-      "src_port": "20"
-    },
-    {
+      "src_port": 20,
       "des_ip": "127.0.0.4",
-      "des_port": "60001"
+      "des_port": 60001
     }
   ]
 }

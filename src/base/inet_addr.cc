@@ -77,4 +77,9 @@ bool InetAddress::resolve(std::string_view hostname, InetAddress* out)
 }
 
 
+void InetAddress::setSockAddr(const std::string& ip,const uint16_t port)
+{
+    memZero(&addr_, sizeof addr_);
+    fromIpPort(ip.data(), port, &addr_);
+}
 

@@ -1,6 +1,8 @@
 #include "config.h"
 #include "../base/tool.h"
 #include "../include/json/document.h"
+#include <cassert>
+#include <cstdint>
 #include <filesystem>
 
 using namespace appconfig;
@@ -16,7 +18,6 @@ ConfigError AppConfig::parseConfFile()
     return ConfigError::CONF_FILE_NOT_EXIST;
   }
 
-  // parse file
   // read file
   std::string config_content;
   auto read_error = base::readFileToString(config_content, conf_file_path);
@@ -24,6 +25,7 @@ ConfigError AppConfig::parseConfFile()
     return ConfigError::CONF_READ_ERROR;
   }
 
+  // parse file
   Document jsondocu;
   if (jsondocu.Parse(config_content.c_str()).HasParseError()) {
     return ConfigError::CONF_PARSE_ERROR;
@@ -33,8 +35,21 @@ ConfigError AppConfig::parseConfFile()
     return ConfigError::CONF_SYNTAX_ERROR;
   }
 
-  for (const auto& item:jsondocu["net"].GetArray()) {
 
+  for (const auto& item:jsondocu["net"].GetArray()) {
+    assert(item["src_ip"].IsString());
+    assert(item["src_port"].IsNumber());
+    assert(item["des_ip"].IsString());
+    assert(item["des_port"].IsNumber());
+    if (!item["src_ip"].IsString() ||!item["src_port"].IsNumber()||
+        !item["des_ip"].IsString()||!item["des_port"].IsNumber()) {
+      return ConfigError::CONF_SYNTAX_ERROR;
+    }
+    auto net_config = NetConfig{};
+    net_config.src.setSockAddr(item["src_ip"].GetString(),
+        static_cast<uint16_t>(item["src_port"].GetUint()));
+    net_config.des.setSockAddr(item["des_ip"].GetString(),
+        static_cast<uint16_t>(item["des_port"].GetUint()));
   }
   return ConfigError::NONE;
 }
