@@ -43,15 +43,59 @@ class Channel {
 
   void tie(const std::shared_ptr<void>&); // prolang lifetime of this channel to avoid core dump
 
-  int fd() const { return fd_; }
-  int events() const { return register_events_; }
   void setReceiveEvents(int receiveEvents) { receive_events_ = receiveEvents; }
 
+  bool isNoneEvent() const { return register_events_ == kNoneEvent; }
+
+  // set events
+
+  void enableReading()
+  {
+    register_events_ |= kReadEvent;
+    update();
+  }
+  void disableReading()
+  {
+    register_events_ &= ~kReadEvent;
+    update();
+  }
+  void enableWriting()
+  {
+    receive_events_ |= kWriteEvent;
+    update();
+  }
+  void disbaleWriting()
+  {
+    receive_events_ &= ~kWriteEvent;
+    update();
+  }
+  void disableAll()
+  {
+    receive_events_ = kNoneEvent;
+    update();
+  }
+  bool isWriting() const { return register_events_ & kWriteEvent; }
+  bool isReading() const { return register_events_ & kReadEvent; }
+  // get and set channel status
+  int index() { return poll_index_; }
+  void setIndex(int index) { poll_index_ = index; }
+  int fd() const { return fd_; }
+  int events() const { return register_events_; }
+
+  // void doNotLogHup(){log_hup_ =false;} // never log socket close
+  //
+  EventLoop* ownerLoop() { return loop_; }
+
+  void remove();
+
   private:
+  void update();
+
   static std::string eventToString(int fd, int ev);
+  void handleEventWithGuard(Timestamp receiveTime);
 
   static const int kNoneEvent;
-  static const int kreadEvent;
+  static const int kReadEvent;
   static const int kWriteEvent;
 
   EventLoop* loop_;
