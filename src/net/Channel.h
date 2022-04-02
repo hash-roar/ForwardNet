@@ -111,7 +111,7 @@ class Channel {
   bool is_handling_event_;
   bool added_to_loop_;
   ReadEventCallback read_callcak_;
-  EventCallback wirte_callback_;
+  EventCallback write_callback_;
   EventCallback close_callbcak_;
   EventCallback error_callbcak_;
 };

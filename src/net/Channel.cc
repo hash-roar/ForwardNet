@@ -52,7 +52,7 @@ void Channel::remove()
 void Channel::handleEvent(Timestamp receiveTime)
 {
   std::shared_ptr<void> guard;
-  if (tied_) {
+  if (tied_) { //to make sure that the lifetime of tcpconnection prolonged
     guard = tie_.lock();
     if (guard) {
       handleEventWithGuard(receiveTime);
@@ -83,4 +83,19 @@ void Channel::handleEventWithGuard(Timestamp receiveTime)
       error_callbcak_();
     }
   }
+
+  if (receive_events_ & (POLLIN | POLLPRI | POLLRDHUP)) {
+    if (read_callcak_) {
+      read_callcak_(receiveTime);
+    }
+  }
+  if (receive_events_ & POLLOUT) {
+    if (write_callback_) {
+      write_callback_();
+    }
+  }
+
+  is_handling_event_ = false;
 }
+
+
