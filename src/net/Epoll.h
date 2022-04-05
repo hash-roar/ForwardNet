@@ -10,6 +10,8 @@
 
 namespace net {
 
+  class EventLoop;
+
 class Epoll {
   public:
   Epoll(EventLoop* loop);

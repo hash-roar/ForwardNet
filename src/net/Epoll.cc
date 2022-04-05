@@ -1,5 +1,6 @@
 #include "Epoll.h"
 #include "../base/cast.h"
+#include "../base/tool.h"
 #include "Channel.h"
 #include "EventLoop.h"
 #include <asm-generic/errno-base.h>
@@ -101,4 +102,41 @@ void Epoll::updateChannel(Channel* channel)
             update(EPOLL_CTL_DEL, channel);
         }
     }
+}
+
+void Epoll::removeChannel(Channel* channel)
+{
+    assertInLoopThread();
+    int fd = channel->fd();
+    assert(channels_.find(fd) != channels_.end());
+    assert(channels_[fd] == channel);
+    assert(channel->isNoneEvent());
+
+    int index = channel->index();
+    assert(index == kAdded || index == kDeleted);
+    size_t n = channels_.erase(fd);
+    assert(n == 1);
+    if (index == kAdded) {
+        update(EPOLL_CTL_DEL, channel);
+    }
+    channel->setIndex(kNew);
+}
+
+void Epoll::update(int operation, Channel* channel)
+{
+    struct epoll_event event;
+    memZero(&event, sizeof(event));
+    event.events = channel->events();
+    event.data.ptr = channel;
+
+    int fd = channel->fd();
+    if (::epoll_ctl(epollfd_, operation, fd, &event) < 0) {
+        // DEBUG_LOG //TODO
+    }
+}
+const char* Epoll::operationToString(int op)
+{
+    //TODO
+    //
+    return "";
 }
