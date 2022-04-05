@@ -134,6 +134,14 @@ void Epoll::update(int operation, Channel* channel)
         // DEBUG_LOG //TODO
     }
 }
+
+bool Epoll::hasChannel(Channel*channel)
+{
+  assertInLoopThread();
+  auto iter = channels_.find(channel->fd());
+  return iter!=channels_.end() && iter->second == channel;
+}
+
 const char* Epoll::operationToString(int op)
 {
     //TODO

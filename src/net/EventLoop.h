@@ -1,8 +1,10 @@
 #ifndef __FNET_NET_EVENTLOOP_
 #define __FNET_NET_EVENTLOOP_
 
+#include "../base/base.h"
 #include "Channel.h"
 #include "Thread.h"
+#include "TimerId.h"
 //#include "Epoll.h"
 #include <any>
 #include <atomic>
@@ -31,8 +33,16 @@ class EventLoop {
 
   void runInLoop(Functor callback);
   void queueInLoop(Functor callback);
+  size_t queueSize() const;
+
+  //TimerId runAt(Timestamp time, TimerCallback callback);
+  //TimerId runAfter(Timestamp time, TimerCallback callback);
+  //TimerId runEvery(Timestamp time, TimerCallback callback);
 
   void wakeup();
+  void updateChannel(Channel*channel);
+  void removeChannel(Channel*channel);
+  bool hasChannel(Channel*channel);
 
   bool isInLoopThread() const { return thread_id_ == CurrentThread::tid(); }
   void assertInLoopThread()
