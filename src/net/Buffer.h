@@ -3,9 +3,9 @@
 
 #include <algorithm>
 #include <assert.h>
-#include <string>
 #include <cstddef>
 #include <string.h>
+#include <string>
 #include <string_view>
 #include <tuple>
 #include <vector>
@@ -122,24 +122,40 @@ class Buffer {
     retrieve(len);
     return result;
   }
-  
-  std::string_view toStringView()const
+
+  std::string_view toStringView() const
   {
-    return std::string_view(peek(),readableByte());
+    return std::string_view(peek(), readableByte());
   }
 
-  void append(const std::string_view&str)
+  void append(const std::string_view& str)
   {
-    
   }
-  void append(const char* data,size_t len)
+  void append(const char* data, size_t len)
   {
+  }
 
+  void enableWritaleBytes(size_t len)
+  {
+    if (writableBytes() < len) {
+    }
+    assert(writableBytes() >= len);
   }
 
   public:
   char* beginWrite() { return begin() + write_index_; }
   const char* beginWrite() const { return begin() + write_index_; }
+
+  void makeSpace(size_t len)
+  {
+    if (writableBytes() + prependableBytes() < len + kCheapPrepend) {
+      buffer_.resize(write_index_ + len);
+    } else {
+      assert(kCheapPrepend < read_index_);
+      size_t readable = readableByte();
+      std::copy(begin() + read_index_, begin() + write_index_, begin() + kCheapPrepend);
+    }
+  }
 
   private:
   char* begin()
