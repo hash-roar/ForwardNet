@@ -10,6 +10,8 @@
 
 namespace net {
 
+  class EventLoop;
+
 class Epoll {
   public:
   Epoll(EventLoop* loop);
@@ -17,6 +19,7 @@ class Epoll {
   base::Timestamp poll(int timeutMs, ChannelList* activeChannels);
   void updateChannel(Channel* channel);
   void removeChannel(Channel* channel);
+  bool hasChannel(Channel*channel);
 
   private:
   static const int kInitEventListSize = 16;
