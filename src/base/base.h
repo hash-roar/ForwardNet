@@ -7,6 +7,17 @@
 
 namespace base {
   typedef std::function<void()> TimerCallback;
+
+  class noncopyable{
+    public:
+      noncopyable( const noncopyable& ) =delete;
+      void operator=(const noncopyable&) =delete;
+
+      protected:
+      noncopyable()=default;
+      ~noncopyable()=default;
+
+  };
 }
 
 

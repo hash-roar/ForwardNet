@@ -29,7 +29,7 @@ class Channel {
 
   void setWriteCallback(EventCallback callbcak)
   {
-    wirte_callback_ = std::move(callbcak);
+    write_callback_ = std::move(callbcak);
   }
   void setCloseCallback(EventCallback callbcak)
   {
