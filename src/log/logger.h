@@ -7,6 +7,7 @@ namespace flog {
 class logger {
   using log_level_t = level::level_enum;
   public:
+  logger();
 
   const std::string& name() const;
   private:

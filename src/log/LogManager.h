@@ -15,11 +15,9 @@ class LogManager : noncopyable {
   using log_levels = std::unordered_map<std::string, level::level_enum>;
 
   void register_logger(std::shared_ptr<logger> new_logger);
-   std::optional<std::shared_ptr<logger>> get_logger(const std::string &logger_name);
+  std::optional<std::shared_ptr<logger>> get_logger(const std::string& logger_name);
   std::shared_ptr<logger> default_logger();
-
-
-
+  void set_default_logger(std::shared_ptr<logger> new_logger);
 
   static LogManager& instance();
 
@@ -30,7 +28,6 @@ class LogManager : noncopyable {
   void register_logger_(std::shared_ptr<logger> new_logger);
 
   private:
-
   std::mutex logger_map_mutex_;
 
   std::unordered_map<std::string, std::shared_ptr<logger>> loggers_;
