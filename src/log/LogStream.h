@@ -49,7 +49,7 @@ class LogStream {
     return *this;
   }
 
-  // operator overloading for 
+  // operator overloading for  integral
 
   self& operator<<(const char* str)
   {
